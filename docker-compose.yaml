@@ -1,0 +1,54 @@
+version: '3'
+
+services:
+  minhapalicacao:
+    container_name: prontuarios
+    image: tomcat:latest
+    environment:
+      DATABASE_URL: "jdbc:postgresql://prontuarios_db:5432/prontuarios_db"
+      DATABASE_USER: "postgres"
+      DATABASE_PASSWORD: "PostgresData"
+    ports:
+      - "8083:8080"
+    volumes:
+      - ./myapps/:/usr/local/tomcat/webapps
+    depends_on:
+      - postgres
+    networks:
+      - default
+    restart: always
+
+  postgres:
+    container_name: prontuarios_db
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+    ports:
+      - "5434:5432"
+    volumes:
+      - ./database/data:/var/lib/postgresql/data
+#      - ./pg_hba.conf:/var/lib/postgresql/data/pg_hba.conf
+#      - ./postgresql.conf:/var/lib/postgresql/data/postgresql.conf
+    networks:
+      - default
+    restart: always
+      
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "izzana_angelo@gmail.com"
+      PGADMIN_DEFAULT_PASSWORD: "password"
+    ports:
+      - "8082:80"
+    depends_on:
+      - postgres
+    networks:
+      - default
+    restart: always
+
+networks: 
+  default:
+    name: prontuarios
